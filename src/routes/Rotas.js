@@ -1,6 +1,7 @@
 const express = require('express')
 const rotas = express();
 
+
 //importação User
 const user = require('../controllers/User');
 const validationMiddlewareUser = require('../middlewares/userValidate');
@@ -24,6 +25,9 @@ const clientValidation = require('../middlewares/clientValidate');
 //importacao Orders (pedidos)
 const pedidos = require('../controllers/Orders');
 
+//importação upload
+const multer = require('../middlewares/multer');
+const { uploadArquivo, listarArquivos } = require("../controllers/Upload");
 
 
 
@@ -59,5 +63,7 @@ rotas.post('/pedido', pedidos.cadastrarPedido);
 rotas.get('/pedido', pedidos.listarPedido);
 rotas.get('/pedido/:id', pedidos.listarPedidoId);
 
+rotas.post('/arquivo/upload', multer.single('imagem'), uploadArquivo);
+rotas.get('/arquivo', listarArquivos);
 
 module.exports = rotas;

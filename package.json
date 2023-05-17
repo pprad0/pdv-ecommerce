@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@hapi/joi": "^17.1.1",
+    "aws-sdk": "^2.1379.0",
     "bcrypt": "^5.1.0",
     "class-validator": "^0.14.0",
     "cors": "^2.8.5",
@@ -10,6 +11,7 @@
     "joi-translation-pt-br": "^0.0.10",
     "jsonwebtoken": "^9.0.0",
     "knex": "^2.4.2",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.2",
     "pg": "^8.11.0",
     "yup": "^1.1.1"
