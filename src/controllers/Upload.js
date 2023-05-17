@@ -7,8 +7,8 @@ const s3 = new aws.S3({
 
     endpoint,
     credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+        accessKeyId: process.env.G06_AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.G06_AWS_SECRET_ACCESS_KEY
     }
 
 })
