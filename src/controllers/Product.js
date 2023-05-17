@@ -2,8 +2,23 @@ const { isNumber } = require('class-validator')
 const knex = require('../db/Connection')
 const { id } = require('../models/productSchema')
 
+const aws = require('aws-sdk')
+
+const endpoint = new aws.Endpoint(process.env.ENDPOINT_S3)
+
+const s3 = new aws.S3({
+
+    endpoint,
+    credentials: {
+        accessKeyId: process.env.G06_AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.G06_AWS_SECRET_ACCESS_KEY
+    }
+
+})
+
+
 const cadastrarProduto = async (req, res) => {
-    const { descricao, quantidade_estoque, valor, categoria_id } = req.body
+    const { descricao, quantidade_estoque, valor, categoria_id, produto_imagem } = req.body
 
     if (quantidade_estoque < 0) {
         return res.status(400).json({ mensagem: 'A quantidade em estoque deve ser igual ou maior que zero ! ' })
@@ -24,20 +39,22 @@ const cadastrarProduto = async (req, res) => {
                 descricao,
                 quantidade_estoque,
                 valor,
-                categoria_id
+                categoria_id,
+                produto_imagem: produto_imagem || null
             })
+            .returning('*')
 
-        return res.status(201).send()
+        return res.status(201).send(inserirProduto)
 
 
     } catch (error) {
 
-        return res.status(500).json({ mensagem: 'O servidor apresentou um erro !' })
+        return res.status(500).json({ mensagem: error })
     }
 }
 
 const atualizarProduto = async (req, res) => {
-    const { descricao, quantidade_estoque, valor, categoria_id } = req.body
+    const { descricao, quantidade_estoque, valor, categoria_id, produto_imagem } = req.body
     const { id } = req.params
 
     if (quantidade_estoque < 0) {
@@ -65,6 +82,17 @@ const atualizarProduto = async (req, res) => {
             return res.status(404).json({ mensagem: "Produto não existe, informe outro 'id' " })
         }
 
+        if (existeProduto.produto_imagem) {
+            try {
+                await s3.deleteObject({
+                    Bucket: process.env.BACKBLAZE_BUCKET,
+                    Key: existeProduto.produto_imagem
+                }).promise()
+
+            } catch (error) {
+                return res.status(404).json({ erro: error.message, mensagem: "Certifique-se de que 'produto_imagem' seja o valor da propriedade 'path' no upload de arquivo. Caso esteja correto, comunique nosso suporte. " })
+            }
+        }
 
         const atualizarProduto = await knex('produtos')
             .where('id', '=', id)
@@ -72,7 +100,8 @@ const atualizarProduto = async (req, res) => {
                 descricao,
                 quantidade_estoque,
                 valor,
-                categoria_id
+                categoria_id,
+                produto_imagem: produto_imagem || null
             })
 
         return res.status(201).json()
@@ -159,6 +188,7 @@ const excluirProduto = async (req, res) => {
                 } else {
                     try {
                         const teste = await knex("produtos").del().where({ id: produto.id })
+
                         return res.status(200).json({ mensagem: "Produto excluido com sucesso!!" })
                     } catch (error) {
                         return res.status(404).json({ mensagem: "Produto não encontrado" })
@@ -168,14 +198,18 @@ const excluirProduto = async (req, res) => {
                 return error
             }
 
+
         } else {
             return res.status(404).json({ mensagem: "Produto não encontrado" })
         }
+
     } else {
-        return res.status(400).json({ mensagem: 'Parâmetro inválido,Insira somente números !' })
+        return res.status(400).json({ mensagem: 'Parâmetro inválido, insira somente números !' })
     }
 
 }
+
+
 
 module.exports = {
     cadastrarProduto,
