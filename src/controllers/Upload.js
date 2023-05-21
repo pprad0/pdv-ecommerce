@@ -1,4 +1,3 @@
-
 const aws = require('aws-sdk')
 
 const endpoint = new aws.Endpoint(process.env.ENDPOINT_S3)
@@ -14,7 +13,7 @@ const s3 = new aws.S3({
 })
 
 
-const uploadArquivo = async (req, res) => {
+const uploadArquivo = async(req, res) => {
     const { file } = req
 
     try {
@@ -40,7 +39,7 @@ const uploadArquivo = async (req, res) => {
 
 }
 
-const listarArquivos = async (req, res) => {
+const listarArquivos = async(req, res) => {
 
     try {
         const imagens = await s3.listObjects({

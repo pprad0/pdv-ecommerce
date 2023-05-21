@@ -17,7 +17,7 @@ const s3 = new aws.S3({
 })
 
 
-const cadastrarProduto = async (req, res) => {
+const cadastrarProduto = async(req, res) => {
     const { descricao, quantidade_estoque, valor, categoria_id, produto_imagem } = req.body
 
     if (quantidade_estoque < 0) {
@@ -29,6 +29,13 @@ const cadastrarProduto = async (req, res) => {
     }
 
     try {
+        if (produto_imagem) {
+            const imagem = await knex.raw('SELECT * FROM produtos WHERE produto_imagem =?', produto_imagem)
+            if (imagem.rows.length > 0) {
+                return res.status(400).json({ mensagem: "Imagem já cadastrada em outro produto" })
+            }
+        }
+
         const categoriaExiste = await knex('categorias').where("id", "=", categoria_id).first()
         if (!categoriaExiste) {
             return res.status(404).json({ mensagem: 'Categoria não encontrada, informe outra categoria.' })
@@ -53,7 +60,7 @@ const cadastrarProduto = async (req, res) => {
     }
 }
 
-const atualizarProduto = async (req, res) => {
+const atualizarProduto = async(req, res) => {
     const { descricao, quantidade_estoque, valor, categoria_id, produto_imagem } = req.body
     const { id } = req.params
 
@@ -118,7 +125,7 @@ function validarId(id, res) {
 
 }
 
-const listarProdutosPorCategoria = async (req, res) => {
+const listarProdutosPorCategoria = async(req, res) => {
 
     const { categoria_id } = req.query
 
@@ -157,7 +164,7 @@ async function consultarProduto(id) {
 
 
 }
-const listarProduto = async (req, res) => {
+const listarProduto = async(req, res) => {
 
     const { id } = req.params
     if (validarId(id)) {
@@ -174,7 +181,7 @@ const listarProduto = async (req, res) => {
 
 
 }
-const excluirProduto = async (req, res) => {
+const excluirProduto = async(req, res) => {
 
     const { id } = req.params
 
