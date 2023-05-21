@@ -17,7 +17,7 @@ const s3 = new aws.S3({
 })
 
 
-const cadastrarProduto = async (req, res) => {
+const cadastrarProduto = async(req, res) => {
     const { descricao, quantidade_estoque, valor, categoria_id, produto_imagem } = req.body
 
     if (quantidade_estoque < 0) {
@@ -53,7 +53,7 @@ const cadastrarProduto = async (req, res) => {
     }
 }
 
-const atualizarProduto = async (req, res) => {
+const atualizarProduto = async(req, res) => {
     const { descricao, quantidade_estoque, valor, categoria_id, produto_imagem } = req.body
     const { id } = req.params
 
@@ -118,7 +118,7 @@ function validarId(id, res) {
 
 }
 
-const listarProdutosPorCategoria = async (req, res) => {
+const listarProdutosPorCategoria = async(req, res) => {
 
     const { categoria_id } = req.query
 
@@ -157,7 +157,7 @@ async function consultarProduto(id) {
 
 
 }
-const listarProduto = async (req, res) => {
+const listarProduto = async(req, res) => {
 
     const { id } = req.params
     if (validarId(id)) {
@@ -174,19 +174,29 @@ const listarProduto = async (req, res) => {
 
 
 }
-const excluirProduto = async (req, res) => {
+const excluirProduto = async(req, res) => {
 
     const { id } = req.params
 
     if (validarId(id)) {
         const produto = await consultarProduto(id)
+
         if (produto) {
             try {
                 const produtoExcluir = await knex.raw('SELECT * FROM pedidos WHERE produto_id = ?', id)
                 if (produtoExcluir.rows.length > 0) {
+
                     return res.status(401).json({ Message: "O produto não pode ser excluido, pois esta vinculado a um pedido " })
                 } else {
                     try {
+                        const produtoExcluir = await knex.raw('SELECT * FROM produtos WHERE id = ?', id)
+                        const imagem = produtoExcluir.rows[0].produto_imagem
+                        if (imagem) {
+                            await s3.deleteObject({
+                                Bucket: process.env.BACKBLAZE_BUCKET,
+                                Key: imagem
+                            }).promise()
+                        }
                         const teste = await knex("produtos").del().where({ id: produto.id })
 
                         return res.status(200).json({ mensagem: "Produto excluido com sucesso!!" })
