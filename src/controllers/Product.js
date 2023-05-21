@@ -17,7 +17,7 @@ const s3 = new aws.S3({
 })
 
 
-const cadastrarProduto = async(req, res) => {
+const cadastrarProduto = async (req, res) => {
     const { descricao, quantidade_estoque, valor, categoria_id, produto_imagem } = req.body
 
     if (quantidade_estoque < 0) {
@@ -53,7 +53,7 @@ const cadastrarProduto = async(req, res) => {
     }
 }
 
-const atualizarProduto = async(req, res) => {
+const atualizarProduto = async (req, res) => {
     const { descricao, quantidade_estoque, valor, categoria_id, produto_imagem } = req.body
     const { id } = req.params
 
@@ -118,7 +118,7 @@ function validarId(id, res) {
 
 }
 
-const listarProdutosPorCategoria = async(req, res) => {
+const listarProdutosPorCategoria = async (req, res) => {
 
     const { categoria_id } = req.query
 
@@ -157,7 +157,7 @@ async function consultarProduto(id) {
 
 
 }
-const listarProduto = async(req, res) => {
+const listarProduto = async (req, res) => {
 
     const { id } = req.params
     if (validarId(id)) {
@@ -174,7 +174,7 @@ const listarProduto = async(req, res) => {
 
 
 }
-const excluirProduto = async(req, res) => {
+const excluirProduto = async (req, res) => {
 
     const { id } = req.params
 
