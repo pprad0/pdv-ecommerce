@@ -89,6 +89,13 @@ const atualizarProduto = async(req, res) => {
             return res.status(404).json({ mensagem: "Produto não existe, informe outro 'id' " })
         }
 
+        if (produto_imagem) {
+            const imagem = await knex.raw('SELECT * FROM produtos WHERE produto_imagem =?', produto_imagem)
+            if (imagem.rows.length > 0) {
+                return res.status(400).json({ mensagem: "Imagem já cadastrada em outro produto" })
+            }
+        }
+
         if (existeProduto.produto_imagem) {
             try {
                 await s3.deleteObject({
